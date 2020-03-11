@@ -18,23 +18,19 @@
 
 package com.waz.zclient.usersearch
 
-import android.Manifest.permission.READ_CONTACTS
-import android.content.{Context, DialogInterface, Intent}
+import android.content.{Context, Intent}
 import android.os.Bundle
 import android.view._
 import android.view.animation.Animation
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView.OnEditorActionListener
 import android.widget._
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.{LinearLayoutManager, RecyclerView}
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
-import com.waz.content.UserPreferences
 import com.waz.model.UserData.ConnectionStatus
 import com.waz.model._
-import com.waz.permissions.PermissionsService
 import com.waz.service.tracking.{GroupConversationEvent, TrackingEvent, TrackingService}
 import com.waz.service.{SearchQuery, ZMessaging}
 import com.waz.threading.{CancellableFuture, Threading}
@@ -66,7 +62,6 @@ import com.waz.zclient.utils.ContextUtils._
 import com.waz.zclient.utils.{IntentUtils, ResColor, RichView, StringUtils, UiStorage, UserSignal}
 import com.waz.zclient.views._
 
-import scala.collection.immutable.ListSet
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
@@ -93,9 +88,6 @@ class SearchUIFragment extends BaseFragment[Container]
   private lazy val pickUserController     = inject[IPickUserController]
   private lazy val conversationScreenController   = inject[IConversationScreenController]
   private lazy val navigationController   = inject[INavigationController]
-
-  private lazy val shareContactsPref      = zms.map(_.userPrefs.preference(UserPreferences.ShareContacts))
-  private lazy val showShareContactsPref  = zms.map(_.userPrefs.preference(UserPreferences.ShowShareContacts))
 
   private lazy val adapter                = new SearchUIAdapter(this)
   private lazy val searchController       = inject[SearchController]
@@ -297,14 +289,6 @@ class SearchUIFragment extends BaseFragment[Container]
     emptyServicesIcon.foreach(_.setImageDrawable(ManageServicesIcon(ResColor.fromId(R.color.white_24))))
   }
 
-  override def onStart(): Unit = {
-    super.onStart()
-    userAccountsController.isTeam.head.map {
-      case true => //
-      case _    => showShareContactsDialog()
-    }
-  }
-
   override def onResume(): Unit = {
     super.onResume()
     inviteButton.foreach(_.onClick(sendGenericInvite(false)))
@@ -427,43 +411,6 @@ class SearchUIFragment extends BaseFragment[Container]
     searchController.filter! ""
     searchController.tab ! Tab.People
     pickUserController.hidePickUser()
-  }
-
-  // XXX Only show contact sharing dialogs for PERSONAL START UI
-  private def showShareContactsDialog(): Unit = {
-    (for {
-      false <- shareContactsPref.head.flatMap(_.apply())(Threading.Background)
-      true  <- showShareContactsPref.head.flatMap(_.apply())(Threading.Background)
-    } yield {}).map { _ =>
-      val checkBoxView= View.inflate(getContext, R.layout.dialog_checkbox, null)
-      val checkBox = checkBoxView.findViewById(R.id.checkbox).asInstanceOf[CheckBox]
-      var checked = false
-
-      checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-        def onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean): Unit =
-          checked = isChecked
-      })
-      checkBox.setText(R.string.people_picker__share_contacts__nevvah)
-
-      new AlertDialog.Builder(getContext)
-        .setTitle(R.string.people_picker__share_contacts__title)
-        .setMessage(R.string.people_picker__share_contacts__message)
-        .setView(checkBoxView)
-        .setPositiveButton(R.string.people_picker__share_contacts__yay,
-          new DialogInterface.OnClickListener() {
-            def onClick(dialog: DialogInterface, which: Int): Unit =
-              inject[PermissionsService].requestAllPermissions(ListSet(READ_CONTACTS)).map { granted =>
-                shareContactsPref.head.flatMap(_ := granted)
-                if (!granted && !shouldShowRequestPermissionRationale(READ_CONTACTS)) showShareContactsPref.head.flatMap(_ := false)
-              }
-          })
-        .setNegativeButton(R.string.people_picker__share_contacts__nah,
-          new DialogInterface.OnClickListener() {
-            def onClick(dialog: DialogInterface, which: Int): Unit =
-              if (checked) showShareContactsPref.head.flatMap(_ := false)
-          }).create
-        .show()
-    }
   }
 
   override def onIntegrationClicked(data: IntegrationData): Unit = {

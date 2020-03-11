@@ -282,19 +282,6 @@ object CallSessionId extends (String => CallSessionId) {
   }
 }
 
-case class ContactId(str: String) {
-  override def toString: String = str
-}
-
-object ContactId extends (String => ContactId) {
-  def apply(): ContactId = Id.random()
-
-  implicit object Id extends Id[ContactId] {
-    override def random(): ContactId = ContactId(Uid().toString)
-    override def decode(str: String): ContactId = ContactId(str)
-  }
-}
-
 case class InvitationId(str: String) {
   override def toString: String = str
 }

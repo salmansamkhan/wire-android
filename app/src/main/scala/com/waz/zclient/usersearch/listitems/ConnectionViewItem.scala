@@ -25,7 +25,7 @@ case class ConnectionViewItem(data: ConnectionViewModel) extends SearchViewItem 
   import SearchViewItem._
   import SectionViewItem._
 
-  override def section: Int = if (data.isConnected) ContactsSection else DirectorySection
+  override def section: Int = DirectorySection
 
   override def index: Int = data.indexVal
 

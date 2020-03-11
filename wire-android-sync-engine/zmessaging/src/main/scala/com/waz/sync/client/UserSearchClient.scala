@@ -30,7 +30,7 @@ import com.waz.znet2.http.Request.UrlCreator
 import com.waz.znet2.http._
 
 trait UserSearchClient {
-  def getContacts(query: SearchQuery, limit: Int = DefaultLimit): ErrorOrResponse[UserSearchResponse]
+  def search(query: SearchQuery, limit: Int = DefaultLimit): ErrorOrResponse[UserSearchResponse]
   def exactMatchHandle(handle: Handle): ErrorOrResponse[Option[UserId]]
 }
 
@@ -46,11 +46,11 @@ class UserSearchClientImpl(implicit
   private implicit val errorResponseDeserializer: RawBodyDeserializer[ErrorResponse] =
     objectFromCirceJsonRawBodyDeserializer[ErrorResponse]
 
-  override def getContacts(query: SearchQuery, limit: Int = DefaultLimit): ErrorOrResponse[UserSearchResponse] = {
-    verbose(l"getContacts($query, $limit)")
+  override def search(query: SearchQuery, limit: Int = DefaultLimit): ErrorOrResponse[UserSearchResponse] = {
+    verbose(l"search($query, $limit)")
     Request
       .Get(
-        relativePath = ContactsPath,
+        relativePath = SearchPath,
         queryParameters = queryParameters("q" -> query.str, "size" -> limit)
       )
       .withResultType[UserSearchResponse]
@@ -73,7 +73,7 @@ class UserSearchClientImpl(implicit
 }
 
 object UserSearchClient extends DerivedLogTag {
-  val ContactsPath = "/search/contacts"
+  val SearchPath = "/search/contacts"
   val HandlesPath = "/users/handles"
 
   val DefaultLimit = 10

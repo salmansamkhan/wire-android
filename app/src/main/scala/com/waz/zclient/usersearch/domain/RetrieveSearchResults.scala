@@ -24,7 +24,6 @@ import com.waz.service.TeamSizeThreshold
 import com.waz.threading.Threading
 import com.waz.utils.events.{EventContext, Signal}
 import com.waz.zclient.common.controllers.UserAccountsController
-import com.waz.zclient.conversation.ConversationController
 import com.waz.zclient.log.LogUI._
 import com.waz.zclient.search.SearchController
 import com.waz.zclient.search.SearchController.{SearchUserListState, Tab}
@@ -40,7 +39,6 @@ class RetrieveSearchResults()(implicit injector: Injector, eventContext: EventCo
   import SectionViewItem._
 
   private val userAccountsController    = inject[UserAccountsController]
-  private val convController            = inject[ConversationController]
   private val searchController          = inject[SearchController]
 
   private var mergedResult              = mutable.ListBuffer[SearchViewItem]()
