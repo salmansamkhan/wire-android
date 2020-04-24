@@ -95,10 +95,8 @@ object NotificationData {
   implicit val NotificationOrdering: Ordering[NotificationData] = Ordering.by((data: NotificationData) => (data.time, data.id))
 
   implicit lazy val NotificationCodec: EnumCodec[NotificationType, String] = EnumCodec.injective {
-<<<<<<< HEAD
     case NotificationType.CONNECT_REQUEST        => "ConnectRequest"
     case NotificationType.CONNECT_ACCEPTED       => "ConnectAccepted"
-    case NotificationType.CONTACT_JOIN           => "ContactJoin"
     case NotificationType.IMAGE_ASSET            => "Asset"
     case NotificationType.ANY_ASSET              => "AnyAsset"
     case NotificationType.VIDEO_ASSET            => "VideoAsset"
@@ -111,22 +109,6 @@ object NotificationData {
     case NotificationType.MISSED_CALL            => "MissedCall"
     case NotificationType.LIKE                   => "Like"
     case NotificationType.LOCATION               => "Location"
-=======
-    case NotificationType.CONNECT_REQUEST  => "ConnectRequest"
-    case NotificationType.CONNECT_ACCEPTED => "ConnectAccepted"
-    case NotificationType.IMAGE_ASSET      => "Asset"
-    case NotificationType.ANY_ASSET        => "AnyAsset"
-    case NotificationType.VIDEO_ASSET      => "VideoAsset"
-    case NotificationType.AUDIO_ASSET      => "AudioAsset"
-    case NotificationType.TEXT             => "Text"
-    case NotificationType.MEMBER_JOIN      => "MemberJoin"
-    case NotificationType.MEMBER_LEAVE     => "MemberLeave"
-    case NotificationType.RENAME           => "Rename"
-    case NotificationType.KNOCK            => "Knock"
-    case NotificationType.MISSED_CALL      => "MissedCall"
-    case NotificationType.LIKE             => "Like"
-    case NotificationType.LOCATION => "Location"
->>>>>>> chore: Remove dead code around AddressBook and all other code connected to sharing contacts
     case NotificationType.MESSAGE_SENDING_FAILED => "MessageSendingFailed"
     case NotificationType.CONVERSATION_DELETED   => "ConversationDeleted"
     case NotificationType.COMPOSITE              => "Composite"
